@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="婆婆運動打卡">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=101">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=200">
   <style>
     :root {
       --bg: #FDFBF7;
@@ -318,7 +318,7 @@
     </div>
 
     <div class="hero-card">
-      <img id="hero-avatar" class="akai-avatar" src="akai_wave.png?v=101" alt="阿凱" onclick="playCurrentAudio()">
+      <img id="hero-avatar" class="akai-avatar" src="akai_wave.png?v=200" alt="阿凱" onclick="playCurrentAudio()">
       <div class="speech-bubble">
         <p id="speech-bubble-text" class="speech-text">婆婆早安！今天想做什麼運動呢？我來陪你一起動一動喔！</p>
         <button class="replay-voice-btn" onclick="playCurrentAudio()">🔊 聽阿凱說話</button>
@@ -418,13 +418,13 @@
       if (count === 0) {
         starDisplay.textContent = '☆☆☆';
         progressText.textContent = '尚未開始，今天選 2~3 項動一動！';
-        heroAvatar.src = 'akai_wave.png';
+        heroAvatar.src = 'akai_wave.png?v=200';
         speechBubble.textContent = '婆婆早安！今天想做什麼運動呢？我來陪你一起動一動喔！';
         currentAudioTrack = AUDIO_FILES.greeting;
       } else if (totalScore < 60) {
         starDisplay.textContent = '★☆☆';
         progressText.textContent = `已完成 ${count} 項 (活力值 ${totalScore} 分，差一點就滿分囉)`;
-        heroAvatar.src = 'akai_wave.png';
+        heroAvatar.src = 'akai_wave.png?v=200';
         speechBubble.textContent = '婆婆動得很好喔！再加一項就達標滿分囉，阿凱幫您加油！';
         currentAudioTrack = AUDIO_FILES.needMore;
       } else if (totalScore >= 60 && totalScore < 90) {
@@ -514,7 +514,7 @@
           showModal('akai_thumbs.png', '今日運動達標！👍👍', '阿凱給婆婆比兩個大拇指！超讚的！');
           playAudio(AUDIO_FILES.goalMet);
         } else {
-          showModal('akai_wave.png', '太厲害了！🎉', '又完成一項囉！阿凱幫您加油！');
+          showModal('akai_wave.png?v=200', '太厲害了！🎉', '又完成一項囉！阿凱幫您加油！');
           playAudio(AUDIO_FILES.singleDone);
         }
       }
