@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="婆婆運動打卡">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=99">
   <style>
     :root {
       --bg: #FDFBF7;
@@ -60,10 +60,11 @@
       border: 2px solid #FED7D7;
     }
     .akai-avatar {
-      width: 100px;
-      height: 100px;
-      border-radius: 20px;
-      object-fit: cover;
+      width: 90px;
+      height: 90px;
+      border-radius: 18px;
+      object-fit: contain;
+      background: #FFFFFF;
       flex-shrink: 0;
       box-shadow: 0 3px 10px rgba(0,0,0,0.1);
       cursor: pointer;
@@ -317,7 +318,7 @@
     </div>
 
     <div class="hero-card">
-      <img id="hero-avatar" class="akai-avatar" src="akai_wave.png" alt="阿凱" onclick="playCurrentAudio()">
+      <img id="hero-avatar" class="akai-avatar" src="akai_wave.png?v=99" alt="阿凱" onclick="playCurrentAudio()">
       <div class="speech-bubble">
         <p id="speech-bubble-text" class="speech-text">婆婆早安！今天想做什麼運動呢？我來陪你一起動一動喔！</p>
         <button class="replay-voice-btn" onclick="playCurrentAudio()">🔊 聽阿凱說話</button>
