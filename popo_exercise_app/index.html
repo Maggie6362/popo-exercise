@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>婆婆與阿凱的健康運動打卡</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="婆婆運動打卡">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <style>
+    :root {
+      --bg: #FDFBF7;
+      --card-bg: #FFFFFF;
+      --text-main: #2D3748;
+      --text-muted: #718096;
+      --primary: #FF7A59;
+      --primary-light: #FFF0EB;
+      --success: #38A169;
+      --success-light: #E6FFFA;
+      --accent: #EBF8FF;
+      --border: #EDF2F7;
+      --shadow: 0 4px 14px rgba(0,0,0,0.06);
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+    }
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      min-height: 100vh;
+      padding: 16px 16px 40px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    /* Mode Toggle */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 2px;
+    }
+    .date-badge {
+      font-size: 17px;
+      font-weight: 700;
+      color: #4A5568;
+    }
+    .mode-btn {
+      background: #EDF2F7;
+      border: 1px solid #CBD5E0;
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #4A5568;
+      cursor: pointer;
+    }
+    /* Akai Hero Card */
+    .hero-card {
+      background: #FFFFFF;
+      border-radius: 24px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border: 2px solid #FED7D7;
+    }
+    .akai-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 20px;
+      object-fit: cover;
+      flex-shrink: 0;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      cursor: pointer;
+    }
+    .speech-bubble {
+      flex: 1;
+      background: #FFF5F5;
+      border: 2px solid #FEB2B2;
+      border-radius: 18px;
+      padding: 12px 14px;
+      position: relative;
+    }
+    .speech-bubble::before {
+      content: "";
+      position: absolute;
+      left: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-width: 6px 10px 6px 0;
+      border-style: solid;
+      border-color: transparent #FEB2B2 transparent transparent;
+    }
+    .speech-text {
+      font-size: 19px;
+      font-weight: 800;
+      line-height: 1.4;
+      color: #9B2C2C;
+      margin: 0;
+    }
+    .replay-voice-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 6px;
+      background: #FED7D7;
+      border: none;
+      border-radius: 12px;
+      padding: 4px 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #9B2C2C;
+      cursor: pointer;
+    }
+    /* Progress Meter */
+    .progress-box {
+      background: #FFFFFF;
+      border-radius: 20px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    .progress-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .progress-title {
+      font-size: 18px;
+      font-weight: 800;
+    }
+    .stars {
+      font-size: 22px;
+      letter-spacing: 2px;
+    }
+    .bar-bg {
+      width: 100%;
+      height: 16px;
+      background: #EDF2F7;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #FFB199 0%, #FF7A59 100%);
+      border-radius: 10px;
+      transition: width 0.4s ease;
+    }
+    .progress-status {
+      font-size: 15px;
+      font-weight: 700;
+      color: #718096;
+      text-align: right;
+    }
+    /* Exercise List */
+    .exercise-section-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #2D3748;
+      margin: 4px 0 0 2px;
+    }
+    .exercise-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .ex-card {
+      background: #FFFFFF;
+      border-radius: 20px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+      border: 2px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: all 0.2s ease;
+    }
+    .ex-card.checked {
+      background: #F0FFF4;
+      border-color: #68D391;
+    }
+    .ex-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .ex-name-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ex-icon {
+      font-size: 28px;
+    }
+    .ex-name {
+      font-size: 23px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .ex-badge {
+      font-size: 14px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 12px;
+      background: #EDF2F7;
+      color: #4A5568;
+    }
+    .ex-card.checked .ex-badge {
+      background: #C6F6D5;
+      color: #22543D;
+    }
+    .ex-info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4px;
+    }
+    .ex-target {
+      font-size: 17px;
+      font-weight: 700;
+      color: #4A5568;
+    }
+    .video-link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #EBF8FF;
+      color: #2B6CB0;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 14px;
+      text-decoration: none;
+      border: 1px solid #BEE3F8;
+    }
+    .check-btn {
+      width: 100%;
+      padding: 14px 0;
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .check-btn:active {
+      transform: scale(0.98);
+    }
+    .check-btn.btn-todo {
+      background: #FF7A59;
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(255, 122, 89, 0.35);
+    }
+    .check-btn.btn-done {
+      background: #38A169;
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(56, 161, 105, 0.3);
+    }
+    /* Caregiver View (女儿观察模式) */
+    .caregiver-panel {
+      display: none;
+      background: #FFFFFF;
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    .caregiver-panel.active {
+      display: block;
+    }
+    .cg-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: #2B6CB0;
+    }
+    .log-item {
+      padding: 10px 12px;
+      background: #F7FAFC;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      font-size: 15px;
+      border-left: 4px solid #4299E1;
+    }
+    .sync-config {
+      margin-top: 16px;
+      padding: 12px;
+      background: #EDF2F7;
+      border-radius: 12px;
+      font-size: 14px;
+    }
+    .sync-input {
+      width: 100%;
+      padding: 8px;
+      margin: 4px 0 8px;
+      border: 1px solid #CBD5E0;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+    /* Modal / Popups */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      z-index: 999;
+    }
+    .modal-overlay.show {
+      display: flex;
+    }
+    .modal-card {
+      background: #FFFFFF;
+      border-radius: 24px;
+      padding: 24px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+      animation: pop 0.25s ease-out;
+    }
+    @keyframes pop {
+      0% { transform: scale(0.85); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .modal-avatar {
+      width: 130px;
+      height: 130px;
+      border-radius: 24px;
+      object-fit: cover;
+      margin-bottom: 14px;
+    }
+    .modal-title {
+      font-size: 24px;
+      font-weight: 900;
+      color: #2D3748;
+      margin-bottom: 8px;
+    }
+    .modal-body {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.5;
+      color: #4A5568;
+      margin-bottom: 20px;
+    }
+    .modal-close-btn {
+      background: #FF7A59;
+      color: white;
+      font-size: 20px;
+      font-weight: 800;
+      border: none;
+      border-radius: 16px;
+      padding: 12px 30px;
+      width: 100%;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="date-badge" id="current-date">今天</div>
+      <button class="mode-btn" id="mode-toggle-btn" onclick="toggleMode()">切換模式：阿嬤打卡 👵</button>
+    </div>
+
+    <!-- 阿嬤打卡模式主體 -->
+    <div id="grandma-view">
+      <!-- Akai Hero Card -->
+      <div class="hero-card">
+        <img id="hero-avatar" class="akai-avatar" src="akai_wave.png" alt="阿凱" onclick="playCurrentAudio()">
+        <div class="speech-bubble">
+          <p id="speech-bubble-text" class="speech-text">婆婆早安！今天想做什麼運動呢？我來陪你一起動一動喔！</p>
+          <button class="replay-voice-btn" onclick="playCurrentAudio()">🔊 聽阿凱說話</button>
+        </div>
+      </div>
+
+      <!-- 今日運動量進度條 -->
+      <div class="progress-box">
+        <div class="progress-title-row">
+          <span class="progress-title">今日活力進度</span>
+          <span id="star-display" class="stars">☆☆☆</span>
+        </div>
+        <div class="bar-bg">
+          <div id="progress-bar-fill" class="bar-fill"></div>
+        </div>
+        <div id="progress-text" class="progress-status">尚未開始，今天選 2~3 項動一動！</div>
+      </div>
+
+      <!-- 運動清單 -->
+      <div class="exercise-section-title">請選擇 2～3 項運動：</div>
+      <div class="exercise-list" id="exercise-list-container">
+        <!-- 動態渲染各項運動卡片 -->
+      </div>
+    </div>
+
+    <!-- 女兒關懷模式主體 -->
+    <div id="caregiver-view" class="caregiver-panel">
+      <div class="cg-title">💖 女兒即時關懷儀表板</div>
+      <p style="font-size:16px; color:#4A5568; margin-top:0;">此處可即時查看母親今日運動狀態與打卡歷史：</p>
+      
+      <div style="background:#EDF2F7; padding:12px; border-radius:14px; margin-bottom:14px;">
+        <div style="font-size:16px; font-weight:700;">今日婆婆完成狀況：</div>
+        <div id="cg-today-summary" style="font-size:18px; font-weight:800; color:#2B6CB0; margin-top:4px;">讀取中...</div>
+      </div>
+
+      <div style="font-size:16px; font-weight:800; margin-bottom:8px;">最近運動打卡記錄：</div>
+      <div id="cg-log-list">
+        <!-- 歷史打卡紀錄 -->
+      </div>
+
+      <div class="sync-config">
+        <strong>☁️ Supabase 跨手機同步設定（選填）</strong>
+        <p style="margin:4px 0 8px; font-size:13px; color:#718096;">填入後即可自動將兩支 iPhone 資料秒級同步到雲端：</p>
+        <input type="text" id="supabase-url" class="sync-input" placeholder="Supabase Project URL (https://xxxx.supabase.co)">
+        <input type="password" id="supabase-key" class="sync-input" placeholder="Supabase Anon Key">
+        <button onclick="saveSupabaseConfig()" style="background:#4299E1; color:white; border:none; padding:6px 14px; border-radius:8px; font-weight:700; cursor:pointer;">儲存連線設定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 彈出激勵視窗 (阿凱大圖獎勵) -->
+  <div class="modal-overlay" id="reward-modal" onclick="closeModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <img id="modal-img" class="modal-avatar" src="akai_thumbs.png" alt="阿凱稱讚">
+      <div id="modal-title" class="modal-title">太棒了！</div>
+      <div id="modal-body" class="modal-body">阿凱給婆婆比兩個大拇指！</div>
+      <button class="modal-close-btn" onclick="closeModal()">繼續加油！</button>
+    </div>
+  </div>
+
+  <!-- 隱藏音訊播放器 -->
+  <audio id="audio-player" preload="auto"></audio>
+
+  <script>
+    // 運動項目庫定義 (包含名稱、建議時間/次數、活力分數、圖示、影片引導教學連結)
+    const EXERCISES = [
+      {
+        id: 'park_walk',
+        name: '綠園道散步',
+        icon: '🌳',
+        target: '建議 20～30 分鐘',
+        score: 40,
+        videoUrl: null
+      },
+      {
+        id: 'swimming',
+        name: '溫水游泳／漫步',
+        icon: '🏊‍♀️',
+        target: '建議 20～30 分鐘',
+        score: 40,
+        videoUrl: null
+      },
+      {
+        id: 'march_in_place',
+        name: '家中原地踏步',
+        icon: '🚶‍♀️',
+        target: '建議 10～15 分鐘',
+        score: 30,
+        videoUrl: 'https://www.youtube.com/results?search_query=長者+原地踏步+運動教學'
+      },
+      {
+        id: 'chair_stand',
+        name: '椅子起坐（坐下起立）',
+        icon: '🪑',
+        target: '建議 8～10 次 (做1~2組)',
+        score: 30,
+        videoUrl: 'https://www.youtube.com/results?search_query=銀髮族+椅子起坐+深蹲教學'
+      },
+      {
+        id: 'tiptoe_chair',
+        name: '手扶椅墊腳尖',
+        icon: '🦶',
+        target: '建議 10～15 次',
+        score: 20,
+        videoUrl: 'https://www.youtube.com/results?search_query=長者+扶椅墊腳尖+防跌'
+      },
+      {
+        id: 'chair_stretch',
+        name: '坐姿肩頸伸展操',
+        icon: '🧘‍♀️',
+        target: '建議 5～10 分鐘',
+        score: 20,
+        videoUrl: 'https://www.youtube.com/results?search_query=銀髮族+坐姿伸展操+椅子操'
+      },
+      {
+        id: 'deep_breath',
+        name: '慢速深呼吸與拍手',
+        icon: '👏',
+        target: '建議 5 分鐘',
+        score: 10,
+        videoUrl: null
+      }
+    ];
+
+    // 阿凱語音檔對照 (01~05.m4a)
+    const AUDIO_FILES = {
+      greeting: '01.m4a',      // 婆婆早安！今天想做什麼運動呢？我來陪你一起動一動喔！
+      singleDone: '02.m4a',    // 哇！婆婆好厲害，又完成了一項欸！真棒，太厲害了！
+      needMore: '03.m4a',      // 婆婆今天動得很好喔！等等再加一項，今天就滿分了！加油，耶！
+      goalMet: '04.m4a',       // 哇！今天的運動量剛剛好，婆婆真厲害，超讚的！
+      goalExceeded: '05.m4a'   // 婆婆今天活力滿滿，真厲害！記得運動完後要多喝熱水喔...
+    };
+
+    let currentAudioTrack = AUDIO_FILES.greeting;
+    let isCaregiverMode = false;
+
+    // 初始化當天日期與儲存狀態
+    function getTodayKey() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    function getStorageData() {
+      const key = 'popo_exercise_data';
+      try {
+        return JSON.parse(localStorage.getItem(key)) || {};
+      } catch(e) {
+        return {};
+      }
+    }
+
+    function saveStorageData(data) {
+      localStorage.setItem('popo_exercise_data', JSON.stringify(data));
+      // 若有啟用 Supabase 則同步
+      syncToSupabase(data);
+    }
+
+    // 播放指定音訊
+    function playAudio(src) {
+      currentAudioTrack = src;
+      const audio = document.getElementById('audio-player');
+      audio.src = src;
+      audio.play().catch(e => {
+        console.log("Audio play deferred (user interaction needed on iOS):", e);
+      });
+    }
+
+    function playCurrentAudio() {
+      playAudio(currentAudioTrack);
+    }
+
+    // 評估運動量並更新阿凱狀態
+    function evaluateProgress() {
+      const today = getTodayKey();
+      const allData = getStorageData();
+      const todayDone = allData[today] || []; // 完成的 ID 陣列
+
+      let totalScore = 0;
+      todayDone.forEach(id => {
+        const ex = EXERCISES.find(e => e.id === id);
+        if (ex) totalScore += ex.score;
+      });
+
+      const count = todayDone.length;
+      const fillBar = document.getElementById('progress-bar-fill');
+      const starDisplay = document.getElementById('star-display');
+      const progressText = document.getElementById('progress-text');
+      const heroAvatar = document.getElementById('hero-avatar');
+      const speechBubble = document.getElementById('speech-bubble-text');
+
+      let pct = Math.min(100, Math.round((totalScore / 60) * 100));
+      fillBar.style.width = pct + '%';
+
+      if (count === 0) {
+        starDisplay.textContent = '☆☆☆';
+        progressText.textContent = '尚未開始，今天選 2~3 項動一動！';
+        heroAvatar.src = 'akai_wave.png';
+        speechBubble.textContent = '婆婆早安！今天想做什麼運動呢？我來陪你一起動一動喔！';
+        currentAudioTrack = AUDIO_FILES.greeting;
+      } else if (totalScore < 60) {
+        starDisplay.textContent = '★☆☆';
+        progressText.textContent = `已完成 ${count} 項 (活力值 ${totalScore} 分，差一點就滿分囉)`;
+        heroAvatar.src = 'akai_wave.png';
+        speechBubble.textContent = '婆婆動得很好喔！再加一項就達標滿分囉，阿凱幫您加油！';
+        currentAudioTrack = AUDIO_FILES.needMore;
+      } else if (totalScore >= 60 && totalScore < 90) {
+        starDisplay.textContent = '★★☆';
+        progressText.textContent = `已完成 ${count} 項 (活力值 ${totalScore} 分，運動量充足！棒棒！)`;
+        heroAvatar.src = 'akai_thumbs.png';
+        speechBubble.textContent = '哇！今天的運動量剛剛好，婆婆真厲害，超讚的！👍👍';
+        currentAudioTrack = AUDIO_FILES.goalMet;
+      } else {
+        starDisplay.textContent = '★★★';
+        progressText.textContent = `太厲害了！已完成 ${count} 項 (活力值 ${totalScore} 分，超充實！)`;
+        heroAvatar.src = 'akai_heart.png';
+        speechBubble.textContent = '婆婆今天活力滿滿！記得喝杯溫開水、好好休息喔，愛您！❤️';
+        currentAudioTrack = AUDIO_FILES.goalExceeded;
+      }
+
+      updateCaregiverView(todayDone, totalScore);
+    }
+
+    // 渲染運動卡片
+    function renderExerciseList() {
+      const container = document.getElementById('exercise-list-container');
+      const today = getTodayKey();
+      const allData = getStorageData();
+      const todayDone = allData[today] || [];
+
+      container.innerHTML = '';
+
+      EXERCISES.forEach(ex => {
+        const isDone = todayDone.includes(ex.id);
+        const card = document.createElement('div');
+        card.className = `ex-card ${isDone ? 'checked' : ''}`;
+
+        const videoBtnHtml = ex.videoUrl 
+          ? `<a href="${ex.videoUrl}" target="_blank" class="video-link-btn" onclick="event.stopPropagation()">🎬 影片示範教學</a>`
+          : '';
+
+        card.innerHTML = `
+          <div class="ex-top">
+            <div class="ex-name-box">
+              <span class="ex-icon">${ex.icon}</span>
+              <span class="ex-name">${ex.name}</span>
+            </div>
+            <span class="ex-badge">${isDone ? '✅ 已打卡' : '＋' + ex.score + '分'}</span>
+          </div>
+          <div class="ex-info-row">
+            <span class="ex-target">${ex.target}</span>
+            ${videoBtnHtml}
+          </div>
+          <button class="check-btn ${isDone ? 'btn-done' : 'btn-todo'}" onclick="toggleExercise('${ex.id}')">
+            ${isDone ? '✓ 完成打卡 (點此取消)' : '點我打卡'}
+          </button>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // 打卡切換處理
+    function toggleExercise(id) {
+      const today = getTodayKey();
+      let allData = getStorageData();
+      let todayDone = allData[today] || [];
+
+      const idx = todayDone.indexOf(id);
+      let isNewlyCompleted = false;
+
+      if (idx > -1) {
+        // 取消打卡
+        todayDone.splice(idx, 1);
+      } else {
+        // 新增打卡
+        todayDone.push(id);
+        isNewlyCompleted = true;
+      }
+
+      allData[today] = todayDone;
+      saveStorageData(allData);
+
+      renderExerciseList();
+      evaluateProgress();
+
+      if (isNewlyCompleted) {
+        // 計算總分判定彈窗與語音
+        let totalScore = 0;
+        todayDone.forEach(exId => {
+          const e = EXERCISES.find(item => item.id === exId);
+          if (e) totalScore += e.score;
+        });
+
+        if (totalScore >= 90) {
+          showModal('akai_heart.png', '婆婆活力滿滿！❤️', '超棒的！今天完成大成功，記得喝杯溫水休息喔！');
+          playAudio(AUDIO_FILES.goalExceeded);
+        } else if (totalScore >= 60) {
+          showModal('akai_thumbs.png', '今日運動達標！👍👍', '阿凱給婆婆比兩個大拇指！超讚的！');
+          playAudio(AUDIO_FILES.goalMet);
+        } else {
+          showModal('akai_wave.png', '太厲害了！🎉', '又完成一項囉！阿凱幫您加油！');
+          playAudio(AUDIO_FILES.singleDone);
+        }
+      }
+    }
+
+    // 獎勵彈窗控制
+    function showModal(imgSrc, title, body) {
+      document.getElementById('modal-img').src = imgSrc;
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-body').textContent = body;
+      document.getElementById('reward-modal').classList.add('show');
+    }
+
+    function closeModal() {
+      document.getElementById('reward-modal').classList.remove('show');
+    }
+
+    // 女兒關懷模式更新
+    function updateCaregiverView(todayDone, totalScore) {
+      const summary = document.getElementById('cg-today-summary');
+      if (todayDone.length === 0) {
+        summary.innerHTML = '<span style="color:#E53E3E">今日尚未有打卡記錄</span>';
+      } else {
+        const names = todayDone.map(id => {
+          const ex = EXERCISES.find(e => e.id === id);
+          return ex ? ex.name : id;
+        }).join('、');
+        summary.innerHTML = `已完成 <strong>${todayDone.length}</strong> 項（${names}）<br>總活力值：<strong>${totalScore}</strong> 分 ${totalScore>=60?'<span style="color:#38A169">(已充足達標)</span>':'<span style="color:#DD6B20">(建議再補一項)</span>'}`;
+      }
+
+      // 渲染歷史日誌
+      const logList = document.getElementById('cg-log-list');
+      const allData = getStorageData();
+      const dates = Object.keys(allData).sort().reverse().slice(0, 7);
+      logList.innerHTML = '';
+      dates.forEach(d => {
+        const items = allData[d];
+        const logDiv = document.createElement('div');
+        logDiv.className = 'log-item';
+        logDiv.innerHTML = `<strong>${d}</strong>：完成 ${items.length} 項運動 (${items.map(i => {
+          const ex = EXERCISES.find(e=>e.id===i); return ex?ex.name:i;
+        }).join(', ')})`;
+        logList.appendChild(logDiv);
+      });
+    }
+
+    // 切換模式（長輩 / 女兒）
+    function toggleMode() {
+      isCaregiverMode = !isCaregiverMode;
+      const btn = document.getElementById('mode-toggle-btn');
+      const gView = document.getElementById('grandma-view');
+      const cView = document.getElementById('caregiver-view');
+
+      if (isCaregiverMode) {
+        btn.textContent = '切換模式：女兒關懷 💖';
+        gView.style.display = 'none';
+        cView.classList.add('active');
+      } else {
+        btn.textContent = '切換模式：阿嬤打卡 👵';
+        gView.style.display = 'block';
+        cView.classList.remove('active');
+      }
+    }
+
+    // Supabase 設定與同步
+    function saveSupabaseConfig() {
+      const url = document.getElementById('supabase-url').value.trim();
+      const key = document.getElementById('supabase-key').value.trim();
+      localStorage.setItem('popo_sb_url', url);
+      localStorage.setItem('popo_sb_key', key);
+      alert('Supabase 連線設定已儲存！');
+    }
+
+    function syncToSupabase(data) {
+      const url = localStorage.getItem('popo_sb_url');
+      const key = localStorage.getItem('popo_sb_key');
+      if (!url || !key) return; // 未配置則純本地端運作
+
+      // 同步今日紀錄至 Supabase 資料表 (popo_exercise_logs)
+      const today = getTodayKey();
+      fetch(`${url}/rest/v1/popo_exercise_logs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': key,
+          'Authorization': `Bearer ${key}`,
+          'Prefer': 'resolution=merge-duplicates'
+        },
+        body: JSON.stringify({
+          date: today,
+          completed_items: data[today] || [],
+          updated_at: new Date().toISOString()
+        })
+      }).catch(err => console.log('Supabase sync error:', err));
+    }
+
+    // 頁面載入初始化
+    window.addEventListener('DOMContentLoaded', () => {
+      // 設置今日日期
+      const d = new Date();
+      const weekNames = ['日','一','二','三','四','五','六'];
+      document.getElementById('current-date').textContent = `${d.getMonth()+1}月${d.getDate()}日 (週${weekNames[d.getDay()]})`;
+
+      // 檢查 Supabase 設定
+      if (localStorage.getItem('popo_sb_url')) {
+        document.getElementById('supabase-url').value = localStorage.getItem('popo_sb_url');
+      }
+      if (localStorage.getItem('popo_sb_key')) {
+        document.getElementById('supabase-key').value = localStorage.getItem('popo_sb_key');
+      }
+
+      renderExerciseList();
+      evaluateProgress();
+    });
+  </script>
+</body>
+</html>
